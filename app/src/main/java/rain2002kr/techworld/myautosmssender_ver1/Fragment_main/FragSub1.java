@@ -2,6 +2,7 @@ package rain2002kr.techworld.myautosmssender_ver1.Fragment_main;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -43,14 +45,19 @@ public class FragSub1 extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = (View) inflater.inflate( R.layout.frag_sub1,container,false );
+        ViewGroup rootView = (ViewGroup) inflater.inflate( R.layout.frag_sub1,container,false );
 
-        editName =(EditText) view.findViewById( R.id.editText );
-        editPhone =(EditText) view.findViewById( R.id.editText2 );
 
-        recycler1 = (RecyclerView) view.findViewById( R.id.recycler1 );
-        recycler1.setLayoutManager( new LinearLayoutManager( getContext() ) );
-        adpater = new recyclerAdpater( );
+        editName =(EditText) rootView.findViewById( R.id.editText );
+        editPhone =(EditText) rootView.findViewById( R.id.editText2 );
+
+        recycler1 = (RecyclerView) rootView.findViewById( R.id.recycler1 );
+        //recycler1.setHasFixedSize(true);
+        adpater = new recyclerAdpater(getContext());
+
+        recycler1.setLayoutManager( new LinearLayoutManager( getActivity() ) );
+        //recycler1.setItemAnimator( new DefaultItemAnimator() );
+
         adpater.addItem( new telItem( R.drawable.ic_launcher_foreground,"name","phone" ) );
         adpater.addItem( new telItem( R.drawable.ic_launcher_foreground,"name1","phone" ) );
         adpater.addItem( new telItem( R.drawable.ic_launcher_foreground,"name2","phone" ) );
@@ -67,7 +74,7 @@ public class FragSub1 extends Fragment {
             Toast.makeText( getContext(),"onSaveInstanceState 복원됨", Toast.LENGTH_LONG ).show();
         }
 
-        return view;
+        return rootView;
 
     }
 
@@ -89,19 +96,23 @@ public class FragSub1 extends Fragment {
         mainActivity = null;
     }
 
-    class recyclerAdpater extends RecyclerView.Adapter<recyclerAdpater.ViewHolder> {
+    class recyclerAdpater extends RecyclerView.Adapter<recyclerAdpater.MyViewHolder> {
         ArrayList<telItem> items = new ArrayList<telItem>(  );
+        private Context context;
         public void addItem(telItem item){
             items.add( item );
 
-
         }
-        public class ViewHolder extends RecyclerView.ViewHolder{
+        public recyclerAdpater (Context context){
+            this.context = context;
+        }
+
+        public class MyViewHolder extends RecyclerView.ViewHolder{
             EditText editName,editPhone;
             ImageView imageView;
 
 
-            public ViewHolder(@NonNull View itemView) {
+            public MyViewHolder(@NonNull View itemView) {
                 super( itemView );
                 imageView = itemView.findViewById( R.id.imageView );
                 editName = itemView.findViewById( R.id.editText );
@@ -113,17 +124,16 @@ public class FragSub1 extends Fragment {
 
         @NonNull
         @Override
-        public recyclerAdpater.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            Context context = parent.getContext();
-            LayoutInflater inflater = (LayoutInflater) context.getSystemService( LAYOUT_INFLATER_SERVICE );
-            View view = inflater.inflate( R.layout.tellist, parent, false );
-            recyclerAdpater.ViewHolder vh = new recyclerAdpater.ViewHolder( view );
+        public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-            return vh;
+            View view = LayoutInflater.from( parent.getContext()).inflate( R.layout.tellist,parent,false );
+            //recyclerAdpater.ViewHolder vh = new recyclerAdpater.ViewHolder( view );
+
+            return new MyViewHolder(view);
         }
 
         @Override
-        public void onBindViewHolder(@NonNull recyclerAdpater.ViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull recyclerAdpater.MyViewHolder holder, int position) {
             telItem item = items.get( position );
             holder.imageView.setImageResource( item.getResId() );
             holder.editPhone.setText( item.getPhone() );
@@ -133,7 +143,7 @@ public class FragSub1 extends Fragment {
 
         @Override
         public int getItemCount() {
-            return 0;
+            return items.size();
         }
     }
 
